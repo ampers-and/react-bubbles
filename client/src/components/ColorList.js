@@ -10,6 +10,7 @@ const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [newColor, setNewColor] = useState(initialColor);
 
   const editColor = color => {
     setEditing(true);
@@ -23,10 +24,10 @@ const ColorList = ({ colors, updateColors }) => {
     // think about where will you get the id from...
     // where is is saved right now?
     axiosWithAuth()
-      .post('/colors', colorToEdit)
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
         console.log(res);
-        updateColors(res.data);
+        window.location.reload();
       })
       .catch(err => console.log(err));
 
@@ -42,6 +43,20 @@ const ColorList = ({ colors, updateColors }) => {
         window.location.reload();
       })
       .catch(err => console.log(err));
+  };
+
+  const addColor = e => {
+    e.preventDefault();
+    console.log(newColor);
+
+    axiosWithAuth()
+      .post('/colors', newColor)
+      .then(res => {
+        console.log(res);
+        updateColors(res.data);
+      })
+      .catch(err => console.log(err));
+
   };
 
   return (
@@ -95,6 +110,33 @@ const ColorList = ({ colors, updateColors }) => {
       )}
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
+      <form onSubmit={addColor}>
+          <legend>add color</legend>
+          <label>
+            color name:
+            <input
+              onChange={e =>
+                setNewColor({ ...newColor, color: e.target.value })
+              }
+              value={newColor.color}
+            />
+          </label>
+          <label>
+            hex code:
+            <input
+              onChange={e =>
+                setNewColor({
+                  ...newColor,
+                  code: { hex: e.target.value }
+                })
+              }
+              value={newColor.code.hex}
+            />
+          </label>
+          <div className="button-row">
+            <button type="submit">add</button>
+          </div>
+        </form>
     </div>
   );
 };
